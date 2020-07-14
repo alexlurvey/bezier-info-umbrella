@@ -1,0 +1,23 @@
+{
+  "name": "webgl-umbrella",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html -p 8080 --open"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@thi.ng/geom": "^1.10.7",
+    "@thi.ng/hiccup-svg": "^3.5.4",
+    "@thi.ng/matrices": "^0.6.7",
+    "@thi.ng/rstream": "^4.6.1",
+    "@thi.ng/transducers-hdom": "^2.0.64",
+    "@thi.ng/vectors": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^13.11.0",
+    "typescript": "^3.8.3"
+  }
+}
