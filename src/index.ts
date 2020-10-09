@@ -3,63 +3,58 @@ import {
     group,
     quadratic,
     svgDoc,
+    circle,
+    line,
 } from '@thi.ng/geom';
+import { draw } from '@thi.ng/hiccup-canvas';
 import { convertTree } from "@thi.ng/hiccup-svg";
-import { stream } from '@thi.ng/rstream';
+import { reactive } from '@thi.ng/rstream';
 import { updateDOM } from '@thi.ng/transducers-hdom';
-import { vec2 } from '@thi.ng/vectors';
+import { vec2, Vec2 } from '@thi.ng/vectors';
 
-const W = 250;
+const W = 300;
 const LINE_COL = 'cyan';
+const LINE_ATTRS = { stroke: 'white', 'stroke-width': 1, 'stroke-dasharray': '5,5' };
+const CIRCLE_ATTRS = { stroke: 'orange', 'stroke-width': 1 };
+const CIRCLE_RADIUS = 8;
 
-const canvas1: HTMLCanvasElement = document.createElement("canvas");
-const canvas2: HTMLCanvasElement = document.createElement("canvas");
-const div1 = document.createElement('div');
-const div2 = document.createElement('div');
-canvas1.width = canvas1.height = canvas2.width = canvas2.height = W;
-// document.body.appendChild(canvas1);
-// document.body.appendChild(canvas2);
-document.body.appendChild(div1);
-document.body.appendChild(div2);
+// setup canvas
+const quadCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('quadratic-canvas')!;
+const cubicCanvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('cubic-canvas')!;
+const quadraticCtx = quadCanvas.getContext('2d');
+const cubicCtx = cubicCanvas.getContext('2d');
+quadCanvas.width = quadCanvas.height = cubicCanvas.width = cubicCanvas.height = W;
 
-const curve1 = quadratic(vec2(70, 250), vec2(20, 110), vec2(250, 60));
-const curve2 = cubic(vec2(120, 160), vec2(35, 200), vec2(220, 260), vec2(220, 40));
+// quadratic curve
+const quadparts: [ Vec2, Vec2, Vec2 ] = [ vec2(70, 250), vec2(20, 110), vec2(250, 60) ];
+const quadpoints = quadparts.map(v => circle(v, CIRCLE_RADIUS, CIRCLE_ATTRS));
+const quadlines = [
+    line(quadparts[0], quadparts[1], LINE_ATTRS),
+    line(quadparts[1], quadparts[2], LINE_ATTRS),
+];
+const quadShape = group({ stroke: LINE_COL, 'stroke-width': 3 }, [quadratic(...quadparts), ...quadpoints, ...quadlines]);
 
-const svg1 = convertTree(
-    svgDoc(
-        {
-            width: W,
-            height: W,
-            viewBox: `0 0 ${W} ${W}`,
-            fill: "none",
-            stroke: LINE_COL,
-            "stroke-width": 3,
-        },
-        group({ stroke: LINE_COL, 'stroke-width': 5 }, [curve1])
-    )
-)
+// cubic curve
+const cubicparts: [ Vec2, Vec2, Vec2, Vec2 ] = [ vec2(120, 160), vec2(35, 200), vec2(220, 260), vec2(220, 40) ];
+const cubicpoints = cubicparts.map(v => circle(v, CIRCLE_RADIUS, CIRCLE_ATTRS));
+const cubiclines = [
+    line(cubicparts[0], cubicparts[1], LINE_ATTRS),
+    line(cubicparts[1], cubicparts[2], LINE_ATTRS),
+    line(cubicparts[2], cubicparts[3], LINE_ATTRS),
+];
+const cubicShape = group({ stroke: LINE_COL, 'stroke-width': 3 }, [cubic(...cubicparts), ...cubicpoints, ...cubiclines]);
 
-const svg2 = convertTree(
-    svgDoc(
-        {
-            width: W,
-            height: W,
-            viewBox: `0 0 ${W} ${W}`,
-            fill: "none",
-            stroke: LINE_COL,
-            "stroke-width": 3,
-        },
-        group({ stroke: LINE_COL, 'stroke-width': 5 }, [curve2])
-    )
-)
+// draw canvas
+(quadraticCtx && draw(quadraticCtx, quadShape));
+(cubicCtx && draw(cubicCtx, cubicShape));
 
-const str1 = stream<any>().transform(updateDOM({ root: div1 }));
-const str2 = stream<any>().transform(updateDOM({ root: div2 }));
-str1.next(svg1);
-str2.next(svg2);
-
-if (process.env.NODE_ENV !== "production") {
-    const hot = (<any>module).hot;
-    hot && hot.dispose(() => {});
-}
-
+// draw svg
+const svgAttrs = {
+    width: W,
+    height: W,
+    viewBox: `0 0 ${W} ${W}`,
+};
+const quadraticSvg = convertTree(svgDoc(svgAttrs, quadShape));
+const cubicSvg = convertTree(svgDoc(svgAttrs, cubicShape));
+reactive(quadraticSvg).transform(updateDOM({ root: document.getElementById('quadratic-svg')! }));
+reactive(cubicSvg).transform(updateDOM({ root: document.getElementById('cubic-svg')! }));

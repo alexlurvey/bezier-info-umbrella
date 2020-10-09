@@ -4,13 +4,51 @@
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <title>webgl-umbrella</title>
+        <title>bezier info umbrella</title>
         <style>
             body { margin: 0 auto; }
+            #canvas-wrapper,
+            #svg-wrapper {
+                display: flex;
+                flex-direction: row;
+                margin: 1em;
+            }
+            #canvas-wrapper canvas,
+            #svg-wrapper svg {
+                background-color: black;
+                margin: 0 10px;
+            }
+            .chart-wrapper {
+                display: 'flex'
+            }
+            .chart-wrapper h3 {
+                margin-left: 10px;
+            }
         </style>
     </head>
     <body>
-        <div id="app"></div>
-        <script type="text/javascript" src="./src/index.ts"></script>
+        <div id='canvas-wrapper'>
+            <div class='chart-wrapper'>
+                <h3>Quadratic Bézier curve</h3>
+                <canvas id='quadratic-canvas'></canvas>
+            </div>
+            <div class='chart-wrapper'>
+                <h3>Cubic Bézier curve</h3>
+                <canvas id='cubic-canvas'></canvas>
+            </div>
+        </div>
+        <div id='svg-wrapper'>
+            <div class='chart-wrapper'>
+                <h3>Quadratic Bézier curve</h3>
+                <div id='quadratic-svg'></div>
+            </div>
+            <div class='chart-wrapper'>
+                <h3>Cubic Bézier curve</h3>
+                <div id='cubic-svg'></div>
+            </div>
+        </div>
+        <script type="module">
+            import './src/index.ts';
+        </script>
     </body>
 </html>
